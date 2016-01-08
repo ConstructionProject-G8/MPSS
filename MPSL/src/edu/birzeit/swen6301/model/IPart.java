@@ -19,16 +19,65 @@ public interface IPart {
 	public String getMimeType();
 
 	/**
+	 * Used to open input stream for this part.
 	 * 
 	 * @return 
 	 * @throws StreamException
+	 * @throws ParseException 
 	 */
-	public InputStream openStream() throws StreamException;
+	public InputStream openStream() throws StreamException, ParseException;
+	
+	/**
+	 * Used to close input stream and disconnect (http or url) connection of this segment.
+	 */
+	public void closeStream();
+	
+	/**
+	 * Used to fetch bytes for this part.
+	 * 
+	 * @return
+	 * @throws StreamException
+	 * @throws ParseException
+	 */
+	public byte[] download() throws StreamException, ParseException;
+
+	/**
+	 * @param nextPart the next part to set
+	 */
+	public void setNextPart(IPart nextPart);
+
+	/**
+	 * @param previousPart the previous part to set
+	 */
+	public void setPreviousPart(IPart previousPart);
 
 	/**
 	 * 
 	 * @return 
 	 */
 	public boolean isEndLess(); 
+
+	/**
+	 * @param endLess the endLess to set
+	 */
+	public void setEndLess(boolean endLess);
+
+	/**
+	 * 
+	 * @return next parent.
+	 */
+	public IPart parent();
+
+	/**
+	 * 
+	 * @return next part.
+	 */
+	public IPart next();
+
+	/**
+	 * 
+	 * @return previous part.
+	 */
+	public IPart previous();
 
 }

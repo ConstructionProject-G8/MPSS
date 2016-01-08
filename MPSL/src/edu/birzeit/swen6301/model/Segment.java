@@ -1,6 +1,7 @@
 package edu.birzeit.swen6301.model;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.io.*;
 import java.net.MalformedURLException;
@@ -9,20 +10,86 @@ import edu.birzeit.swen6301.model.StreamException;
 import edu.birzeit.swen6301.util.LogHandler;
 import edu.birzeit.swen6301.model.ParseException;
 
-public class Segment implements IPart {
+/**
+ * To encapsulate and organize all related specifications (links) of certain segment text.<p>
+ * <p>
+ * Main Functions:<p>
+ * 1. Split lines as text array of URLs.<p>
+ * 2. Bind URLs as mirror objects into attached list.<p>
+ * 3. Open stream of first available and valid mirror (URL).<p>
+ * <p>
+ * @author
+ */
+public class Segment implements IPart, Comparator, Comparable {
 	
-	private String url;
-	private String mimeType;
-	private Manifest manifest;
+	private int rank;
+	private boolean endLess;
 	private List<Mirror> mirrors;
 	private byte[] bytes;
+	private Mirror openedMirror;
+	private IPart parentPart;
+	private IPart nextPart;
+	private IPart previousPart;
 	
 	public Segment() {
 		
 	}
+
+	/**
+	 * @return the rank
+	 */
+	public int getRank() {
+		return rank;
+	}
+
+	/**
+	 * @return the opendMirror
+	 */
+	public Mirror getOpenedMirror() {
+		return openedMirror;
+	}
+
+	/**
+	 * @param opendMirror the opendMirror to set
+	 */
+	public void setOpenedMirror(Mirror opendMirror) {
+		this.openedMirror = opendMirror;
+	}
+
+	/**
+	 * @param parentPart the parentPart to set
+	 */
+	public void setParentPart(IPart parentPart) {
+		this.parentPart = parentPart;
+	}
+
+	/**
+	 * @param nextPart the nextPart to set
+	 */
+	public void setNextPart(IPart nextPart) {
+		this.nextPart = nextPart;
+	}
+
+	/**
+	 * @param previousPart the previousPart to set
+	 */
+	public void setPreviousPart(IPart previousPart) {
+		this.previousPart = previousPart;
+	}
+
+	/**
+	 * @param rank the rank to set
+	 */
+	public void setRank(int rank) {
+		this.rank = rank;
+	}
 	
 	public Segment(String segmentStr) throws ParseException {
 		this.bind(segmentStr);
+	}
+	
+	public Segment(String segmentStr, boolean openManifestContents) throws ParseException {
+		this.bind(segmentStr, openManifestContents);
 	}
 	
 	public Segment(String[] lines) throws ParseException {
@@ -33,14 +100,10 @@ public class Segment implements IPart {
 	 * Getter of manifest
 	 */
 	public Manifest getManifest() {
-	 	 return manifest; 
+		if (this.getOpenedMirror() == null) return null;
+		else return this.getOpenedMirror().getManifest();
 	}
-	/**
-	 * Setter of manifest
-	 */
-	public void setManifest(Manifest manifest) { 
-		 this.manifest = manifest; 
-	}
+
 	/**
 	 * Getter of mirrors
 	 */
@@ -72,7 +135,8 @@ public class Segment implements IPart {
 	 * @return 
 	 */
 	public String getUrl() { 
-		return url;
+		if (this.getOpenedMirror() == null) return null;
+		else return this.getOpenedMirror().getUrl();
 	 }
 	/**
 	 * Used to add new Mirror into mirrors list.
@@ -89,15 +153,9 @@ public class Segment implements IPart {
 	 * @return 
 	 */
 	public String getMimeType() { 
-		return mimeType;
+		if (this.getOpenedMirror() == null) return null;
+		else return this.getOpenedMirror().getMimeType();
 	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	} 
 	
 	/**
 	 * Used to bind segments lines into URLs' mirrors.
@@ -105,15 +163,39 @@ public class Segment implements IPart {
 	 * @throws ParseException
 	 */
 	public void bind(String[] segmentUrls) throws ParseException {
-		// Segments lines loop.
+		this.bind(segmentUrls, false);
+	}
+	
+	/**
+	 * Used to bind segments lines into URLs' mirrors.
+	 * 
+	 * @param segmentUrls
+	 * @param openManifestContents
+	 * @throws ParseException
+	 */
+	public void bind(String[] segmentUrls, boolean openManifestContents) throws ParseException {
+		// Segments' lines loop.
 		for (int i=0; i < segmentUrls.length; i++) {
 			try {
-				this.addMirror(new Mirror(segmentUrls[i]));		// Add mirror.
+				Mirror mirror = new Mirror(segmentUrls[i]);
+				mirror.setParentPart(this);
+				this.addMirror(mirror);		// Add mirror.
 				// Write event in log.
-				LogHandler.writeEvent("Mirror event: "+ segmentUrls[i]+ " inserted successfully.");
+				LogHandler.writeEvent("Mirror event: "+ segmentUrls[i]+ " data bind operation is done successfully.");
+				
+				if (this.getOpenedMirror() == null) {	//If mirror still isn't opened.
+					mirror.setPreviousPart(this);
+					mirror.openStream(openManifestContents);		// Open mirror.
+					this.setOpenedMirror(mirror);
+					// Write event in log: download successfully.
+					LogHandler.writeEvent("Mirror event: "+ mirror.getUrl()+ " is opened successfully.");
+				}
+			} catch (StreamException e) {
+				// Write error in log.
+				LogHandler.writeError("Mirror stream error: ("+ segmentUrls[i]+ ") opening is failed, "+ e.getMessage());
 			} catch (MalformedURLException e) {
 				// Write error in log.
-				LogHandler.writeError("Mirror error: invalid URL ("+ segmentUrls[i]+ "), "+ e.getMessage()+ ", "+ e.getCause());
+				LogHandler.writeError("Mirror error: invalid URL ("+ segmentUrls[i]+ "), "+ e.getMessage());
 				//throw new ParseException(e.getMessage()+ ", "+ e.getCause(), this, e.getStackTrace());
 			}
 		}
@@ -124,9 +206,20 @@ public class Segment implements IPart {
 	 * @param segmentStr 
 	 * @throws ParseException
 	 */
-	public void bind(String segmentStr) throws ParseException { 
+	public void bind(String segmentStr) throws ParseException {
+		this.bind(segmentStr, false);
+	}
+	
+	/**
+	 * Used to bind segment string into URLs' mirrors.
+	 * 
+	 * @param segmentStr
+	 * @param openManifestContents
+	 * @throws ParseException
+	 */
+	public void bind(String segmentStr, boolean openManifestContents) throws ParseException { 
 		String segmentUrls[] = segmentStr.split("\\r?\\n");		// Split string of segment into array of string.
-		this.bind(segmentUrls);
+		this.bind(segmentUrls, openManifestContents);
 	}
 	
 	/**
@@ -134,8 +227,15 @@ public class Segment implements IPart {
 	 * @return 
 	 */
 	public boolean isEndLess() { 
-		return false;
-	 }
+		return this.endLess;
+	}
+
+	/**
+	 * @param endLess the endLess to set
+	 */
+	public void setEndLess(boolean endLess) {
+		this.endLess = endLess;
+	}
 	
 	/**
 	 * 
@@ -146,26 +246,71 @@ public class Segment implements IPart {
 	 }
 	
 	/**
-	 * Used to download first available segment by this mirror.
+	 * 
+	 * Used to download first available mirror by this segment.
+	 * 
+	 * @return
+	 * @throws StreamException
+	 * @throws  
 	 */
 	public byte[] download() throws StreamException {
-		// Mirrors loop.
-		for (int i=0; i < getMirrors().size(); i++) {
-			try {
-				bytes = getMirrors().get(i).download();		// Download mirror.
-				// Write event in log: download successfully.
-				LogHandler.writeEvent("Mirror event: "+ getMirrors().get(i).getUrl()+ " downloaded successfully.");
-				break;
-			} catch (StreamException e) {
-				// Write error in log.
-				LogHandler.writeError("Mirror error: ("+ getMirrors().get(i).getUrl()+ ") download failure, "+ e.getMessage()+ ", "+ e.getCause());
-			}		
-		}
+		if (this.getOpenedMirror() == null) return new byte[0];
 		
-		return bytes;
+		return this.getOpenedMirror().download();
+	}
+	
+	/**
+	 * 
+	 * Used to download all nested segments by this mirror.
+	 * 
+	 * @return
+	 * @throws StreamException
+	 */
+	public byte[] downloadAllNested() throws StreamException {
+		if (this.getOpenedMirror() == null) return new byte[0];
+		
+		return this.getOpenedMirror().downloadAllNested();
 	}
 
-	public InputStream openStream() throws StreamException { 
-		return null;
+	public InputStream openStream() throws StreamException, ParseException { 
+		if (this.getOpenedMirror() == null) return null;
+		
+		return this.getOpenedMirror().getInputStream();
+	}
+	
+	/**
+	 * Used to close input stream and disconnect (http or url) connection of this segment.
+	 */
+	@Override
+	public void closeStream() {
+		if (this.getManifest() != null) this.getManifest().closeStream();
+		if (this.getOpenedMirror() != null) this.getOpenedMirror().closeStream();
+	}
+
+	@Override
+	public int compare(Object segment1, Object segment2) {
+		return ((Segment) segment2).compareTo(segment1);
+	}
+
+	@Override
+	public int compareTo(Object segment) {
+		return (((Segment) segment).getRank() - this.getRank());
+	}
+
+	@Override
+	public IPart parent() {
+		return this.parentPart;
+	}
+
+	@Override
+	public IPart next() {
+		if (this.getManifest() == null) return this.nextPart;
+		
+		return this.getManifest().next();
+	}
+
+	@Override
+	public IPart previous() {
+		return this.previousPart;
 	}
 }

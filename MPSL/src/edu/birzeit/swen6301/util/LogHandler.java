@@ -7,6 +7,15 @@ import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * Used to access log file.<p>
+ * <p>
+ * Main Functions:<p>
+ * 1. Write events as info severity into log file.<p>
+ * 2. Write errors as severe severity into log file.<p>
+ * <p>
+ * @author
+ */
 public class LogHandler {
 	private static final Logger LOGGER = Logger.getLogger("LogHandler");
 	private static LogHandler logHandler;	// To be singleton.
@@ -24,7 +33,7 @@ public class LogHandler {
 			fileHandler  = new FileHandler("debug_log.html");
 
 			//Assigning handlers to LOGGER object
-            LOGGER.addHandler(consoleHandler);
+            //LOGGER.addHandler(consoleHandler);
             LOGGER.addHandler(fileHandler);
             fileHandler.setFormatter(new LogFormatter());
 

@@ -48,7 +48,7 @@ public class MirrorTest {
 			String ExpectedFileContent="";
 			 
 			try {
-				byte[] fileBytes = mirror.download("http://demo.optimal.ps/nadeem/project/main.segments");
+				byte[] fileBytes = mirror.download("http://demo.optimal.ps/nadeem/project/main_manifest.segments");
 				new FileOutputStream("D:\\result.txt").write(fileBytes);
 				 actualFileContent=convertFiletoString(new File("D:\\result.txt"));
 				 ExpectedFileContent=convertFiletoString(new File("D:\\expected.txt"));

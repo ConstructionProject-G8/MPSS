@@ -1,0 +1,4 @@
+http://1click.ps/files/screenshot.png.segments
+http://1click.ps/files/readme.txt.segments
+http://1click.ps/files/animation.jpg-seq.segments
+http://1click.ps/files/presentation.txt-seq.segments

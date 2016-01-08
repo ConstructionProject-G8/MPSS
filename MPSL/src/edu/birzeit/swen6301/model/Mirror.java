@@ -251,12 +251,12 @@ public class Mirror implements IPart {
 	/**
 	 * Used to open http stream of this segment by this mirror.
 	 * 
-	 * @param openManifestContents
+	 * @param mainManifestContents
 	 * @return
 	 * @throws StreamException
 	 * @throws ParseException
 	 */
-	public InputStream openStream(boolean openManifestContents) throws StreamException, ParseException { 
+	public InputStream openStream(boolean mainManifestContents) throws StreamException, ParseException { 
 		int responseCode;
         
 		try {
@@ -269,7 +269,7 @@ public class Mirror implements IPart {
 	        if (responseCode == HttpURLConnection.HTTP_OK) {
 	        	this.setMimeType(httpConn.getContentType());
 	        	
-		        if (this.hasManifest() && !openManifestContents) {	// If url refer to other manifest file and manifest contents inn't intended.
+		        if (this.hasManifest() && !mainManifestContents) {	// If url refer to other manifest file and manifest contents inn't intended.
 		        	inputStream = openManifestStream();
 		        } else inputStream = httpConn.getInputStream();		// If url refer to other part of file.
 	        } else {
@@ -281,7 +281,7 @@ public class Mirror implements IPart {
 			LogHandler.writeError("Mirror error: invalid http URL format for ("+ this.getUrl()+ "), "+ e.getMessage());
 			
             try {
-		        if (this.hasManifest() && !openManifestContents) {	// If url refer to other manifest file and manifest contents inn't intended.
+		        if (this.hasManifest() && !mainManifestContents) {	// If url refer to other manifest file and manifest contents inn't intended.
 		        	inputStream = openManifestStream();
 		        } else inputStream = urlConn.getInputStream();	// If url refer to other part of file.
 			} catch (IOException e1) {

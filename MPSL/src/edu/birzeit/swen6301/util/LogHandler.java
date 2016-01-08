@@ -30,7 +30,7 @@ public class LogHandler {
         consoleHandler = new ConsoleHandler();
         
         try {
-			fileHandler  = new FileHandler("debug_log.html");
+			fileHandler  = new FileHandler("test_log.html");
 
 			//Assigning handlers to LOGGER object
             //LOGGER.addHandler(consoleHandler);

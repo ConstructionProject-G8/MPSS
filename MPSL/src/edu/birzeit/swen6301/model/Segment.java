@@ -32,7 +32,25 @@ public class Segment implements IPart, Comparator, Comparable {
 	private IPart previousPart;
 	
 	public Segment() {
-		
+	}
+	
+	public Segment(IPart parent) {
+		this.setParentPart(parent);
+	}
+	
+	public Segment(String segmentStr, IPart parent) throws ParseException, StreamException {
+		this(parent);
+		this.bind(segmentStr);
+	}
+	
+	public Segment(IPart parent, String segmentStr, boolean mainManifestContents) throws ParseException, StreamException {
+		this(parent);
+		this.bind(segmentStr, mainManifestContents);
+	}
+	
+	public Segment(IPart parent, String[] lines) throws ParseException, StreamException {
+		this(parent);
+		this.bind(lines);
 	}
 
 	/**
@@ -82,18 +100,6 @@ public class Segment implements IPart, Comparator, Comparable {
 	 */
 	public void setRank(int rank) {
 		this.rank = rank;
-	}
-	
-	public Segment(String segmentStr) throws ParseException {
-		this.bind(segmentStr);
-	}
-	
-	public Segment(String segmentStr, boolean openManifestContents) throws ParseException {
-		this.bind(segmentStr, openManifestContents);
-	}
-	
-	public Segment(String[] lines) throws ParseException {
-		this.bind(lines);
 	}
 	
 	/**
@@ -162,7 +168,7 @@ public class Segment implements IPart, Comparator, Comparable {
 	 * @param segments 
 	 * @throws ParseException
 	 */
-	public void bind(String[] segmentUrls) throws ParseException {
+	public void bind(String[] segmentUrls) throws ParseException, StreamException {
 		this.bind(segmentUrls, false);
 	}
 	
@@ -170,10 +176,10 @@ public class Segment implements IPart, Comparator, Comparable {
 	 * Used to bind segments lines into URLs' mirrors.
 	 * 
 	 * @param segmentUrls
-	 * @param openManifestContents
+	 * @param mainManifestContents
 	 * @throws ParseException
 	 */
-	public void bind(String[] segmentUrls, boolean openManifestContents) throws ParseException {
+	public void bind(String[] segmentUrls, boolean mainManifestContents) throws ParseException, StreamException {
 		// Segments' lines loop.
 		for (int i=0; i < segmentUrls.length; i++) {
 			try {
@@ -185,18 +191,23 @@ public class Segment implements IPart, Comparator, Comparable {
 				
 				if (this.getOpenedMirror() == null) {	//If mirror still isn't opened.
 					mirror.setPreviousPart(this);
-					mirror.openStream(openManifestContents);		// Open mirror.
+					mirror.openStream(mainManifestContents);		// Open mirror.
 					this.setOpenedMirror(mirror);
 					// Write event in log: download successfully.
 					LogHandler.writeEvent("Mirror event: "+ mirror.getUrl()+ " is opened successfully.");
 				}
 			} catch (StreamException e) {
+				String msg = "Mirror stream error: ("+ segmentUrls[i]+ ") opening is failed, "+ e.getMessage();
 				// Write error in log.
-				LogHandler.writeError("Mirror stream error: ("+ segmentUrls[i]+ ") opening is failed, "+ e.getMessage());
+				LogHandler.writeError(msg);
+				// If first used link and by manifest only.
+				if (mainManifestContents) throw new StreamException(msg, this, e.getStackTrace());
 			} catch (MalformedURLException e) {
+				String msg = "Mirror stream error: ("+ segmentUrls[i]+ ") opening is failed, "+ e.getMessage();
 				// Write error in log.
-				LogHandler.writeError("Mirror error: invalid URL ("+ segmentUrls[i]+ "), "+ e.getMessage());
-				//throw new ParseException(e.getMessage()+ ", "+ e.getCause(), this, e.getStackTrace());
+				LogHandler.writeError(msg);
+				// If first used link and by manifest only.
+				if (mainManifestContents) throw new ParseException(msg, this, e.getStackTrace());
 			}
 		}
 	}
@@ -206,7 +217,7 @@ public class Segment implements IPart, Comparator, Comparable {
 	 * @param segmentStr 
 	 * @throws ParseException
 	 */
-	public void bind(String segmentStr) throws ParseException {
+	public void bind(String segmentStr) throws ParseException, StreamException {
 		this.bind(segmentStr, false);
 	}
 	
@@ -214,12 +225,12 @@ public class Segment implements IPart, Comparator, Comparable {
 	 * Used to bind segment string into URLs' mirrors.
 	 * 
 	 * @param segmentStr
-	 * @param openManifestContents
+	 * @param mainManifestContents
 	 * @throws ParseException
 	 */
-	public void bind(String segmentStr, boolean openManifestContents) throws ParseException { 
+	public void bind(String segmentStr, boolean mainManifestContents) throws ParseException, StreamException { 
 		String segmentUrls[] = segmentStr.split("\\r?\\n");		// Split string of segment into array of string.
-		this.bind(segmentUrls, openManifestContents);
+		this.bind(segmentUrls, mainManifestContents);
 	}
 	
 	/**

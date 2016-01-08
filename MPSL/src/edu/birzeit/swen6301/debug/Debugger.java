@@ -74,7 +74,7 @@ public class Debugger {
 		
 		try {
 			byte[] fileBytes = mirror.download("file://localhost/D:/Salah.Hussein/MasterProgram/SWEN6301/project/MPSL/input/test.txt");
-			new FileOutputStream("output/etched_mirror.txt").write(fileBytes);
+			new FileOutputStream("output/fetched_mirror.txt").write(fileBytes);
 			mirror.closeStream();
 			LogHandler.writeEvent("\"output/fetched_mirror.txt\" File is downloaded successfully");
 		} catch (StreamException e) {
@@ -96,7 +96,7 @@ public class Debugger {
 	 * Used to debug data fetching for available first mirror segment by Segment class.
 	 */
 	public void debugSegment() {
-		Segment segment = new Segment();
+		Segment segment = new Segment(null);
 		
 		try {
 			/*

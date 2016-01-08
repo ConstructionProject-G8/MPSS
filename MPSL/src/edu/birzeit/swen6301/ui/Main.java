@@ -25,6 +25,8 @@ import javax.swing.Timer;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import edu.birzeit.swen6301.model.ParseException;
+import edu.birzeit.swen6301.model.StreamException;
 import edu.birzeit.swen6301.util.DataFormatter;
 
 /**
@@ -157,29 +159,32 @@ public class Main extends JFrame {
 
 		try {
 			multipart = Multipart.openStream(url);
-		} catch(IOException e) {
-			e.printStackTrace();
-			progressLabel.setText("Download failed.");
-			return;
-		}
 
-		if(!isSequence)
-			downloadSingleFile();
-		else {
-			progressLabel.setText("Downloading sequence of files...");
-			stepButton.setEnabled(true);
-			animateSlider.setValue(0);
-			animateSlider.setEnabled(true);
-			sliderLabel.setEnabled(true);
-			
-	    	timer = new Timer(1000, new ActionListener() {
-	    		public void actionPerformed(ActionEvent e) {
-	    			downloadNextFileFromSequence();
-	    		}
-	    	});
-	    	// timer will be started and delay set by animate()
+			if(!isSequence)
+				downloadSingleFile();
+			else {
+				progressLabel.setText("Downloading sequence of files...");
+				stepButton.setEnabled(true);
+				animateSlider.setValue(0);
+				animateSlider.setEnabled(true);
+				sliderLabel.setEnabled(true);
+				
+		    	timer = new Timer(1000, new ActionListener() {
+		    		public void actionPerformed(ActionEvent e) {
+		    			downloadNextFileFromSequence();
+		    		}
+		    	});
+		    	// timer will be started and delay set by animate()
+			}
+			progressLabel.setText("Download Finished.");
+		} catch(StreamException e) {
+			//e.printStackTrace();
+			progressLabel.setText("Dear User , There is a connectivity problem or file not exist , please try again.");
+			return;
+		} catch (ParseException e) {
+			//e.printStackTrace();
+			progressLabel.setText("Dear User , the inserted URL is not valid URL.");
 		}
-		progressLabel.setText("Download Finished.");
 	}
 	
 	/**

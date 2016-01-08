@@ -22,15 +22,12 @@ public class Multipart {
 	 * <p>
 	 * Otherwise, when the url does not point to a manifest,
 	 * the returned input stream streams data directly from the url target.
+	 * @throws ParseException 
+	 * @throws StreamException 
 	 */
-	public static InputStream openStream(String url) throws IOException {
-		try {
-			MultiPartStream multiPartStream = new MultiPartStream(url);
+	public static InputStream openStream(String url) throws StreamException, ParseException  {
+		MultiPartStream multiPartStream = new MultiPartStream(url);
 			
-			return multiPartStream;
-		} catch (ParseException e) {
-			throw new IOException(e.getMessage());
-		}
-		//throw new RuntimeException("not yet implemented!");
+		return multiPartStream;
 	}
 }

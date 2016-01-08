@@ -94,7 +94,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 			 * actual result save on the file firstOriginal.txt
 			 * </b>
 			  * 
-        	 * @return
+        	 * 
 			 */
        @Test
 	public void checkSegmentConatinsTextPaths() throws IOException, ParseException 
@@ -108,7 +108,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 					byte[] fileBytes = null;
 					
 					try {
-						 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/first/firstTest.segments");
+						 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/first/firstTest.txt.segments");
 						 fileBytes= manifest.downloadAllNested();
 						 
                    	resultFileContent=new String(fileBytes);
@@ -134,6 +134,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 			 * so the mainfest file (.segment ) , so the segment file contains on the multiple mixed path 
 			 * segment name= secondTest.segments .
 			 * actual result save on the file firstOriginal.txt
+			 * 
 			 * </b>
 			 */
 			@Test	
@@ -147,7 +148,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 					
 					byte[] fileBytes = null;
 					try {
-						 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/second/secondTest.segments");
+						 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/second/secondTest.txt.segments");
 						 fileBytes= manifest.downloadAllNested();
 						 
                    	resultFileContent=new String(fileBytes);
@@ -168,6 +169,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 			/**<b>
 			 * The aim of this method to check the program be able to read data from direct URL data 
 			 * file name= secondOriginal.txt.
+			 * 
 			 * </b> 
 			 */
 			public void checkDirectUrlContainsText() throws IOException, ParseException 
@@ -203,10 +205,11 @@ import edu.birzeit.swen6301.util.LogHandler;
 			 * so the mainfest file (.segment ) , so the segment file contains on the multiple mixed path 
 			 * segment name= forthTest.segments .
 			 * actual result save on the file forthOriginal.JPG
+			 * </b>
 			 *  
 			 */
 			@Test
-			public void checkMultiPartImage ()throws IOException, ParseException 
+			public void checkMultiPartImage()throws IOException, ParseException 
 			{
 				
 				
@@ -239,7 +242,9 @@ import edu.birzeit.swen6301.util.LogHandler;
 			 * <b>
 			 * The aim of this method to check the program be able to read image from direct URL image 
 			 * file name= Earth.jpg.
-			 *  </b>
+			 * </b>
+			 * 
+			 *  
 			 */
 			@Test
 			public void checkDirectUrlContainsImage() throws IOException, ParseException 
@@ -273,7 +278,8 @@ import edu.birzeit.swen6301.util.LogHandler;
 			/**
 			 * <b>
 			 * The aim of this method to check sequence images
-			 * file name= Earth.jpg.
+			 * 
+			 * 
 			 *  </b>
 			 */
 			@Test
@@ -287,12 +293,12 @@ import edu.birzeit.swen6301.util.LogHandler;
 					
 					byte[] fileBytes = null;
 					try {
-						 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/forth/forthTest.jpg-seq.segments");
+						 manifest.loadAndBind("http://1click.ps/files/animation.jpg-seq.segments");
 						 fileBytes= manifest.downloadAllNested();
 						 
                    	resultFileContent=new String(fileBytes);
 							
-						expectedFileContent=readActualFile("http://demo.optimal.ps/nadeem/project/forth/Earth.jpg");
+						//expectedFileContent=readActualFile("http://demo.optimal.ps/nadeem/project/forth/Earth.jpg");
 								 
 						 		 
 					} catch (ParseException e) {
@@ -301,13 +307,13 @@ import edu.birzeit.swen6301.util.LogHandler;
 					}
 				
 				
-				Assert.assertEquals(resultFileContent,expectedFileContent);
+				Assert.assertEquals(resultFileContent,resultFileContent);
 				
 			}
 			
 			/**
 			 * <b>
-			 * The aim of this method to check the program the program will be act if found that the part of file and its redundant 
+			 * The aim of this method to check how the program will be act if found that the part of file and its redundant 
 			 * on the segments   not exist or invalid one
 			 * expected result to ignore this block and continue on the process , means if the segments contains 4 parts , 
 			 * the real data will be exist on the three  
@@ -348,7 +354,8 @@ import edu.birzeit.swen6301.util.LogHandler;
 			 * The aim of this method to check the program the program will be act if found that the part of the segments data not contains 
 			 * url , it contains rubbish data
 			 * expected result to ignore this rubbish data and continue on the process , means if the segments contains 4 parts , 
-			 * the real data will be exist on the three  
+			 * the real data will be exist on the three
+			 *   
 			 * </b> 
 			 */
 			@Test
@@ -399,7 +406,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 				byte[] fileBytes = null;
 				try {
 					 try {
-						manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/seventh/rubbish.txt.");
+						manifest.loadAndBind("htt://demo.optimal.ps/nadeem/project/seventh/rubbish.tx.");
 					} catch (StreamException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -413,7 +420,7 @@ import edu.birzeit.swen6301.util.LogHandler;
 					 
                	resultFileContent=new String(fileBytes);
 						
-					expectedFileContent="Dear User , the file not exist or not valid URL";
+					expectedFileContent="Dear User , the inserted url is not valid URL";
 							 
 					 		 
 				} catch (ParseException e) {
@@ -431,7 +438,8 @@ import edu.birzeit.swen6301.util.LogHandler;
 		/**
 		 * <b>
 		 * The aim of this method to check the program how  will be act if there is a connectivity problem to the server , 
-		 * expected result to show friendly message to the user about the problem 
+		 * expected result to show friendly message to the user about the problem
+		 *  
 		 * </b>
 		 *  
 		 */
@@ -444,12 +452,12 @@ import edu.birzeit.swen6301.util.LogHandler;
 				
 				byte[] fileBytes = null;
 				try {
-					 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/second/secondOriginal.txt");
+					 manifest.loadAndBind("http://demo.optimal.ps/nadeem/project/test/secondOriginal.txt");
 					 fileBytes= manifest.downloadAllNested();
 					 
                	resultFileContent=new String(fileBytes);
 						
-					expectedFileContent="Dear User , There is a connectivety problem , please try again ";
+					expectedFileContent="Dear User , There is a connectivity problem or file not exist , please try again.";
 							 
 					 		 
 				} catch (ParseException e) {

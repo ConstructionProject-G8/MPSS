@@ -55,7 +55,7 @@ public class Manifest implements IPart {
 	 */
 	public boolean sortSegments() {
 		if (this.getSegments() == null) return false;
-		else this.getSegments().sort(new Segment());
+		else this.getSegments().sort(new Segment(this));
 		
 		return true;
 	}
@@ -111,8 +111,9 @@ public class Manifest implements IPart {
 	 * Used to bind manifest lines into segments.
 	 * @param manifestStr 
 	 * @throws ParseException
+	 * @throws StreamException 
 	 */
-	public void bind(String manifestStr) throws ParseException { 
+	public void bind(String manifestStr) throws ParseException, StreamException { 
 		String lines[] = manifestStr.split("\\r?\\n");		// Split string of segment into array of string.
 		this.bind(lines);
 	}
@@ -120,9 +121,10 @@ public class Manifest implements IPart {
 	/**
 	 * Used to bind manifest lines into segments.
 	 * @param lines 
+	 * @throws StreamException 
 	 * @throws ParseException
 	 */
-	public void bind(String[] lines) {
+	public void bind(String[] lines) throws StreamException {
 		rank = 0;
 		segmentStr = "";
 		
@@ -140,12 +142,13 @@ public class Manifest implements IPart {
 	 * Handle segment binder.
 	 * @param segmentStr
 	 * @param rank
+	 * @throws StreamException 
 	 */
-	public void bindSegment() {
-		Segment segment = new Segment();
+	public void bindSegment() throws StreamException {
+		Segment segment = new Segment(this);
 		
 		try {
-			segment.setParentPart(this);
+			//segment.setParentPart(this);
 			segment.bind(segmentStr);
 			segment.setRank(rank);
 			this.addSegment(segment);	// Add segment.
@@ -209,7 +212,7 @@ public class Manifest implements IPart {
 		
 		
 		LogHandler.writeEvent("Manifest event: Loading ("+ this.getUrl()+ ") manifest contents is started.");
-		Segment segment = new Segment(this.getUrl(), true);
+		Segment segment = new Segment(this, this.getUrl(), true);
 		
 		if (segment.getOpenedMirror() == null) return "";
 				
@@ -249,7 +252,7 @@ public class Manifest implements IPart {
 		
 		if (getSegments() == null) return bytes;	// If Empty.
 		
-		Segment segment = new Segment();
+		Segment segment = new Segment(this);
 		this.sortSegments();
 		
 		// Segments loop.
